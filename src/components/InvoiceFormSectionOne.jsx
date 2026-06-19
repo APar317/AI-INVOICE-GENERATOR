@@ -206,14 +206,53 @@ export default function InvoiceFormSectionOne({ invoiceData, updateInvoiceData }
                 <option value="INR">INR (₹)</option>
               </select>
             </div>
-            <div className="field-group">
-              <label htmlFor="gst-applicable">GST Applicable</label>
-              <input
-                type="checkbox"
-                id="gst-applicable"
-                checked={invoiceData.gstApplicable}
-                onChange={(e) => updateInvoiceData('gstApplicable', e.target.checked)}
-              />
+            <div className="field-group" style={{ gridColumn: 'span 2' }}>
+              <label style={{ fontSize: '0.85rem', color: '#94a3b8', fontWeight: 500, marginBottom: '0.5rem', display: 'block' }}>
+                GST Applicable
+              </label>
+              <label style={{ display: 'inline-flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}>
+                <input
+                  type="checkbox"
+                  id="gst-applicable"
+                  checked={invoiceData.gstApplicable}
+                  onChange={(e) => updateInvoiceData('gstApplicable', e.target.checked)}
+                  style={{ display: 'none' }}
+                />
+                {/* Toggle Track */}
+                <div style={{
+                  position: 'relative',
+                  width: '48px',
+                  height: '26px',
+                  borderRadius: '13px',
+                  background: invoiceData.gstApplicable ? '#6366f1' : '#334155',
+                  border: `1px solid ${invoiceData.gstApplicable ? '#6366f1' : '#475569'}`,
+                  transition: 'background 0.3s, border-color 0.3s',
+                  flexShrink: 0,
+                  boxShadow: invoiceData.gstApplicable ? '0 0 8px rgba(99,102,241,0.5)' : 'none',
+                }}>
+                  <div style={{
+                    position: 'absolute',
+                    top: '4px',
+                    left: '4px',
+                    width: '16px',
+                    height: '16px',
+                    background: '#ffffff',
+                    borderRadius: '50%',
+                    transition: 'transform 0.3s ease',
+                    transform: invoiceData.gstApplicable ? 'translateX(22px)' : 'translateX(0px)',
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.3)',
+                  }} />
+                </div>
+                {/* Label text */}
+                <span style={{
+                  fontSize: '0.9rem',
+                  fontWeight: 600,
+                  color: invoiceData.gstApplicable ? '#6366f1' : '#94a3b8',
+                  transition: 'color 0.3s',
+                }}>
+                  {invoiceData.gstApplicable ? '18% GST Applicable' : 'GST Not Applicable'}
+                </span>
+              </label>
             </div>
 
           </div>
