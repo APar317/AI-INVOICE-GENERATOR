@@ -1,0 +1,21 @@
+.invoice-header {
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.invoice-header h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.5rem;
+}
+
+.invoice-header p {
+  color: var(--text-secondary);
+}
+
+.invoice-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
