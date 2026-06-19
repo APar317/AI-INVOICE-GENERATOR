@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import './styles/InvoiceForm.css';
 
 export default function InvoiceFormSectionThree({ invoiceData, updateInvoiceData }) {
-  const { items, globalDiscount, globalDiscountType, tax, shipping, subtotal, total, currencySymbol } = invoiceData;
+  const { items, globalDiscount, globalDiscountType, shipping, subtotal, total, currencySymbol, gstApplicable, gst } = invoiceData;
 
   const generateId = () => Date.now() + Math.random();
 
@@ -58,15 +58,15 @@ export default function InvoiceFormSectionThree({ invoiceData, updateInvoiceData
     
     calculatedTotal = Math.max(0, calculatedTotal);
 
-    const taxVal = parseFloat(tax) || 0;
-    const taxAmount = calculatedTotal * (taxVal / 100);
-    calculatedTotal += taxAmount;
+    const gstAmount = invoiceData.gstApplicable ? calculatedTotal * 0.18 : 0;
+    updateInvoiceData('gst', gstAmount);
+    calculatedTotal += gstAmount;
 
     const shippingVal = parseFloat(shipping) || 0;
     calculatedTotal += shippingVal;
 
     updateInvoiceData('total', calculatedTotal);
-  }, [items, globalDiscount, globalDiscountType, tax, shipping]);
+  }, [items, globalDiscount, globalDiscountType, shipping, gstApplicable]);
 
   const formatCurrency = (amount) => {
     return `${currencySymbol}${amount.toFixed(2)}`;
@@ -130,22 +130,20 @@ export default function InvoiceFormSectionThree({ invoiceData, updateInvoiceData
               />
             </div>
             <div className="item-discount">
-              <div className="discount-input-group">
-                <input 
-                  type="number" 
-                  min="0"
-                  step="0.01"
-                  value={item.discount}
-                  onChange={(e) => updateItem(item.id, 'discount', e.target.value)}
-                />
-                <select 
-                  value={item.discountType}
-                  onChange={(e) => updateItem(item.id, 'discountType', e.target.value)}
-                >
-                  <option value="%">%</option>
-                  <option value="flat">{currencySymbol}</option>
-                </select>
-              </div>
+              <input 
+                type="number" 
+                min="0"
+                step="0.01"
+                value={item.discount}
+                onChange={(e) => updateItem(item.id, 'discount', e.target.value)}
+              />
+              <select 
+                value={item.discountType}
+                onChange={(e) => updateItem(item.id, 'discountType', e.target.value)}
+              >
+                <option value="%">%</option>
+                <option value="flat">{currencySymbol}</option>
+              </select>
             </div>
             <div className="item-amount">
               <span>{formatCurrency(getItemAmount(item))}</span>
@@ -179,14 +177,14 @@ export default function InvoiceFormSectionThree({ invoiceData, updateInvoiceData
         <div className="summary-row">
           <span className="summary-label">Discount:</span>
           <div className="summary-input-group">
-            <input 
-              type="number" 
+            <input
+              type="number"
               min="0"
               step="0.01"
               value={globalDiscount}
               onChange={(e) => updateInvoiceData('globalDiscount', e.target.value)}
             />
-            <select 
+            <select
               value={globalDiscountType}
               onChange={(e) => updateInvoiceData('globalDiscountType', e.target.value)}
             >
@@ -197,18 +195,22 @@ export default function InvoiceFormSectionThree({ invoiceData, updateInvoiceData
         </div>
 
         <div className="summary-row">
-          <span className="summary-label">Tax:</span>
+          <span className="summary-label">GST:</span>
           <div className="summary-input-group simple">
             <input 
-              type="number" 
-              min="0"
-              step="0.01"
-              value={tax}
-              onChange={(e) => updateInvoiceData('tax', e.target.value)}
+              type="checkbox"
+              checked={invoiceData.gstApplicable}
+              onChange={(e) => updateInvoiceData('gstApplicable', e.target.checked)}
             />
-            <span className="static-addon">%</span>
+            <span className="static-addon">{invoiceData.gstApplicable ? '18%' : 'Not Applicable'}</span>
           </div>
         </div>
+        {invoiceData.gstApplicable && (
+          <div className="summary-row">
+            <span className="summary-label">GST Amount:</span>
+            <span className="summary-value">{formatCurrency(invoiceData.gst || 0)}</span>
+          </div>
+        )}
 
         <div className="summary-row">
           <span className="summary-label">Shipping:</span>

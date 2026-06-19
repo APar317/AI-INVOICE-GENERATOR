@@ -4,7 +4,7 @@ export default function InvoicePDFTemplate({ invoiceData, contentRef }) {
   const { 
     logo, invoiceNumber, invoiceDate, dueDate, dueTerms, currencySymbol,
     invoiceFrom, billTo, items, globalDiscount, globalDiscountType,
-    tax, shipping, subtotal, total, paymentMethod, bankDetails, notes, terms
+    gstApplicable, gst, shipping, subtotal, total, paymentMethod, bankDetails, notes, terms
   } = invoiceData;
 
   const formatCurrency = (amount) => {
@@ -115,10 +115,10 @@ export default function InvoicePDFTemplate({ invoiceData, contentRef }) {
                 <span>-{formatCurrency(globalDiscountType === '%' ? subtotal * (globalDiscount/100) : globalDiscount)}</span>
               </div>
             )}
-            {tax > 0 && (
+            {gstApplicable && (
               <div style={{ display: 'flex', justifyContent: 'space-between', padding: '5px 0', fontSize: '14px' }}>
-                <span>Tax ({tax}%):</span>
-                <span>{formatCurrency((subtotal - (globalDiscountType === '%' ? subtotal * (globalDiscount/100) : globalDiscount)) * (tax/100))}</span>
+                <span>GST (18%):</span>
+                <span>{formatCurrency(gst)}</span>
               </div>
             )}
             {shipping > 0 && (

@@ -23,7 +23,7 @@ function App() {
     items: [{ id: 1, description: '', qty: 1, rate: 0, discount: 0, discountType: '%' }],
     globalDiscount: 0,
     globalDiscountType: '%',
-    tax: 0,
+    gstApplicable: false,
     shipping: 0,
     subtotal: 0,
     total: 0,

@@ -206,6 +206,15 @@ export default function InvoiceFormSectionOne({ invoiceData, updateInvoiceData }
                 <option value="INR">INR (₹)</option>
               </select>
             </div>
+            <div className="field-group">
+              <label htmlFor="gst-applicable">GST Applicable</label>
+              <input
+                type="checkbox"
+                id="gst-applicable"
+                checked={invoiceData.gstApplicable}
+                onChange={(e) => updateInvoiceData('gstApplicable', e.target.checked)}
+              />
+            </div>
 
           </div>
         </div>
