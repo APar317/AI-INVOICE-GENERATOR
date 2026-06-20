@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import html2pdf from 'html2pdf.js'
 import './App.css'
 import InvoiceFormSectionOne from './components/InvoiceFormSectionOne'
@@ -8,7 +8,22 @@ import InvoiceFormSectionFour from './components/InvoiceFormSectionFour'
 import InvoiceFormSectionFive from './components/InvoiceFormSectionFive'
 import InvoicePDFTemplate from './components/InvoicePDFTemplate'
 
+import Login from './components/Login'
+import AdminDashboard from './components/AdminDashboard'
+
 function App() {
+  const [currentView, setCurrentView] = useState('login'); // 'login', 'app', 'admin'
+  const [userEmail, setUserEmail] = useState(null);
+
+  // Initialize from LocalStorage
+  useEffect(() => {
+    const savedUser = localStorage.getItem('invoice_user');
+    if (savedUser) {
+      setUserEmail(savedUser);
+      setCurrentView('app');
+    }
+  }, []);
+
   const [invoiceData, setInvoiceData] = useState({
     logo: null,
     invoiceName: 'Invoice',
@@ -24,6 +39,7 @@ function App() {
     globalDiscount: 0,
     globalDiscountType: '%',
     gstApplicable: false,
+    gst: 0,
     shipping: 0,
     subtotal: 0,
     total: 0,
@@ -40,14 +56,27 @@ function App() {
     setInvoiceData(prev => ({ ...prev, [field]: value }));
   };
 
+  const handleLogin = (email) => {
+    setUserEmail(email);
+    localStorage.setItem('invoice_user', email);
+    setCurrentView('app');
+  };
+
+  const handleAdminLogin = () => {
+    setCurrentView('admin');
+  };
+
+  const handleLogout = () => {
+    setUserEmail(null);
+    localStorage.removeItem('invoice_user');
+    setCurrentView('login');
+  };
+
   const handleCreateInvoice = () => {
     if (!pdfRef.current) return;
-    
     setIsGenerating(true);
     
     const element = pdfRef.current;
-    
-    // Configure html2pdf options
     const opt = {
       margin:       0,
       filename:     `invoice-${invoiceData.invoiceNumber || 'draft'}.pdf`,
@@ -56,22 +85,38 @@ function App() {
       jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
     };
 
-    // Temporarily display the element for capture
     const originalDisplay = element.parentElement.style.display;
     element.parentElement.style.display = 'block';
 
     html2pdf().set(opt).from(element).save().then(() => {
-      // Hide it again
       element.parentElement.style.display = originalDisplay;
       setIsGenerating(false);
     });
   };
 
+  if (currentView === 'login') {
+    return <Login onLogin={handleLogin} onAdminLogin={handleAdminLogin} />;
+  }
+
+  if (currentView === 'admin') {
+    return <AdminDashboard onLogout={() => setCurrentView('login')} />;
+  }
+
+  // APP VIEW
   return (
     <>
-      <div className="invoice-header">
+      <div className="invoice-header" style={{ position: 'relative' }}>
         <h1 className="text-gradient">AI Invoice Generator</h1>
         <p>Create professional invoices in seconds.</p>
+        
+        <div style={{ position: 'absolute', top: 0, right: 0, textAlign: 'right' }}>
+          <div style={{ fontSize: '0.85rem', color: '#94a3b8', marginBottom: '4px' }}>
+            Logged in as: <strong style={{ color: '#f8fafc' }}>{userEmail}</strong>
+          </div>
+          <button onClick={handleLogout} style={{ background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600 }}>
+            Logout
+          </button>
+        </div>
       </div>
       
       <div className="invoice-container">
@@ -94,7 +139,9 @@ function App() {
       </div>
 
       {/* Hidden PDF Template for Capture */}
-      <InvoicePDFTemplate invoiceData={invoiceData} contentRef={pdfRef} />
+      <div style={{ display: 'none' }}>
+        <InvoicePDFTemplate invoiceData={invoiceData} contentRef={pdfRef} />
+      </div>
     </>
   )
 }
