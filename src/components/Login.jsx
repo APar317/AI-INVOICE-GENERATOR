@@ -27,16 +27,30 @@ export default function Login({ onLogin, onAdminLogin }) {
       return;
     }
 
-    // Password criteria: 
-    // at least 6 characters, contains number, lowercase, uppercase
-    const hasLength = password.length >= 6;
-    const hasLower = /[a-z]/.test(password);
-    const hasUpper = /[A-Z]/.test(password);
-    const hasNumber = /[0-9]/.test(password);
+    // Check stored passwords
+    const storedPasswords = JSON.parse(localStorage.getItem('invoice_user_passwords') || '{}');
+    
+    if (storedPasswords[email]) {
+      // User exists, verify password
+      if (storedPasswords[email] !== password) {
+        setError('Incorrect password. Please use the password you originally set for this account.');
+        return;
+      }
+    } else {
+      // New user, validate criteria
+      const hasLength = password.length >= 6;
+      const hasLower = /[a-z]/.test(password);
+      const hasUpper = /[A-Z]/.test(password);
+      const hasNumber = /[0-9]/.test(password);
 
-    if (!hasLength || !hasLower || !hasUpper || !hasNumber) {
-      setError('Password must be at least 6 characters long and include an uppercase letter, a lowercase letter, and a number.');
-      return;
+      if (!hasLength || !hasLower || !hasUpper || !hasNumber) {
+        setError('Password must be at least 6 characters long and include an uppercase letter, a lowercase letter, and a number.');
+        return;
+      }
+      
+      // Save the new password permanently for this email
+      storedPasswords[email] = password;
+      localStorage.setItem('invoice_user_passwords', JSON.stringify(storedPasswords));
     }
     
     setError('');
